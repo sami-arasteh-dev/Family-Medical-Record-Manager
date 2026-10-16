@@ -1,0 +1,25 @@
+{% extends "base.html" %}{% block title %}{{'ویرایش' if member else 'عضو جدید'}}{% endblock %}
+{% block content %}
+<div class="section-head"><div><h1>{{'ویرایش پروفایل' if member else 'تعریف عضو خانواده'}}</h1><p>اطلاعاتی را که فعلاً ندارید خالی بگذارید و بعداً تکمیل کنید.</p></div></div>
+<form method="post" class="panel form-grid">
+<h3 class="full">مشخصات پایه</h3>
+<label>نام *<input name="first_name" value="{{member.first_name if member else ''}}" required></label>
+<label>نام خانوادگی *<input name="last_name" value="{{member.last_name if member else ''}}" required></label>
+<label>نام مستعار<input name="nickname" value="{{member.nickname if member else ''}}"></label>
+<label>جنسیت<select name="gender"><option></option><option>زن</option><option>مرد</option><option>سایر/نامشخص</option></select></label>
+<label>تاریخ تولد<input type="date" name="birth_date" value="{{member.birth_date if member else ''}}"></label>
+<label>کد ملی<input name="national_id" value="{{member.national_id if member else ''}}"></label>
+<label>گروه خونی<select name="blood_type"><option></option>{% for x in ['A+','A-','B+','B-','AB+','AB-','O+','O-'] %}<option {{'selected' if member and member.blood_type==x}}>{{x}}</option>{% endfor %}</select></label>
+<label>وضعیت تأهل<input name="marital_status" value="{{member.marital_status if member else ''}}"></label>
+<label>شغل<input name="occupation" value="{{member.occupation if member else ''}}"></label>
+<label>تلفن<input name="phone" value="{{member.phone if member else ''}}"></label>
+<label>ایمیل<input type="email" name="email" value="{{member.email if member else ''}}"></label>
+<label class="full">آدرس<textarea name="address">{{member.address if member else ''}}</textarea></label>
+<h3 class="full">تماس اضطراری</h3>
+<label>نام<input name="emergency_name" value="{{member.emergency_name if member else ''}}"></label>
+<label>نسبت<input name="emergency_relation" value="{{member.emergency_relation if member else ''}}"></label>
+<label>تلفن<input name="emergency_phone" value="{{member.emergency_phone if member else ''}}"></label>
+<label class="full">یادداشت عمومی<textarea name="notes">{{member.notes if member else ''}}</textarea></label>
+<div class="full"><button class="btn primary">ذخیره پروفایل</button> <a class="btn" href="{{url_for('index')}}">انصراف</a></div>
+</form>
+{% endblock %}
