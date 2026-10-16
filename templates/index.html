@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% block title %}اعضای خانواده{% endblock %}
+{% block content %}
+<section class="hero">
+  <div><h1>مرکز مدیریت پرونده‌های پزشکی خانواده</h1><p>پروفایل مستقل برای هر فرد، اسناد پزشکی، تحلیل AI و Timeline اقدامات.</p></div>
+  <a class="btn primary" href="{{ url_for('new_member') }}">تعریف عضو خانواده</a>
+</section>
+<div class="grid cards">
+{% for m in members %}
+<a class="card member-card" href="{{ url_for('member', member_id=m.id) }}">
+  <div class="avatar">{{ (m.first_name[:1] + m.last_name[:1])|upper }}</div>
+  <div><h2>{{m.first_name}} {{m.last_name}}</h2><p>{{m.nickname or 'بدون نام مستعار'}} · {{m.gender or 'جنسیت ثبت نشده'}}</p>
+  <small>تاریخ تولد: {{m.birth_date or 'ثبت نشده'}} · گروه خون: {{m.blood_type or 'ثبت نشده'}}</small></div>
+</a>
+{% else %}
+<div class="empty">هنوز عضوی ثبت نشده است.</div>
+{% endfor %}
+</div>
+{% endblock %}
