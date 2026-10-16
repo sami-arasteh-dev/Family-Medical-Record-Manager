@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}{{member.first_name}} {{member.last_name}}{% endblock %}
+{% block content %}
+<div class="profile-head"><div><div class="avatar big">{{member.first_name[:1]}}{{member.last_name[:1]}}</div></div><div class="grow"><h1>{{member.first_name}} {{member.last_name}}</h1><p>{{member.nickname or ''}} · تولد: {{member.birth_date or 'ثبت نشده'}} · گروه خون: {{member.blood_type or 'ثبت نشده'}}</p></div><div class="actions"><a class="btn" href="{{url_for('edit_member',member_id=member.id)}}">ویرایش</a><a class="btn" href="{{url_for('report',member_id=member.id)}}">گزارش پزشکی</a><form method="post" action="{{url_for('analyze_member',member_id=member.id)}}"><button class="btn ai">تحلیل کل پرونده با AI</button></form></div></div>
+<div class="tabs"><a href="#base">پایه</a><a href="#history">سوابق</a><a href="#meds">دارو/حساسیت</a><a href="#documents">اسناد</a><a href="#timeline">Timeline</a><a href="#ai">تحلیل AI</a></div>
+<section id="base" class="panel"><h2>اطلاعات پایه</h2><div class="info-grid">{% for label,key in [('جنسیت','gender'),('کد ملی','national_id'),('وضعیت تأهل','marital_status'),('شغل','occupation'),('تلفن','phone'),('ایمیل','email'),('آدرس','address'),('تماس اضطراری','emergency_name'),('نسبت','emergency_relation'),('شماره اضطراری','emergency_phone')] %}<div><span>{{label}}</span><b>{{member[key] or '—'}}</b></div>{% endfor %}</div></section>
+<section id="history" class="grid two">
+<section class="panel"><h2>بیماری‌ها و تشخیص‌های قبلی</h2>{% if data.conditions %}<div class="table-wrap"><table><thead><tr>
+<th>بیماری</th>
+<th>وضعیت</th>
+<th>تاریخ تشخیص</th>
+<th>شدت</th>
+<th>جزئیات</th>
+<th></th></tr></thead><tbody>{% for r in data.conditions %}<tr>
+<td>{{r["name"] or "—"}}</td>
+<td>{{r["status"] or "—"}}</td>
+<td>{{r["diagnosis_date"] or "—"}}</td>
+<td>{{r["severity"] or "—"}}</td>
+<td>{{r["details"] or "—"}}</td>
+<td><form method="post" action="{{url_for('delete_record',member_id=member.id,table='conditions',record_id=r.id)}}" onsubmit="return confirm('حذف شود؟')"><button class="icon danger">×</button></form></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty small">موردی ثبت نشده است.</div>{% endif %}</section>
+<section class="panel"><h2>اعمال جراحی</h2>{% if data.surgeries %}<div class="table-wrap"><table><thead><tr>
+<th>عمل</th>
+<th>تاریخ</th>
+<th>بیمارستان</th>
+<th>جراح</th>
+<th>نتیجه</th>
+<th></th></tr></thead><tbody>{% for r in data.surgeries %}<tr>
+<td>{{r["title"] or "—"}}</td>
+<td>{{r["date"] or "—"}}</td>
+<td>{{r["hospital"] or "—"}}</td>
+<td>{{r["surgeon"] or "—"}}</td>
+<td>{{r["outcome"] or "—"}}</td>
+<td><form method="post" action="{{url_for('delete_record',member_id=member.id,table='surgeries',record_id=r.id)}}" onsubmit="return confirm('حذف شود؟')"><button class="icon danger">×</button></form></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty small">موردی ثبت نشده است.</div>{% endif %}</section>
+<section class="panel"><h2>بستری‌ها</h2>{% if data.hospitalizations %}<div class="table-wrap"><table><thead><tr>
+<th>ورود</th>
+<th>ترخیص</th>
+<th>بیمارستان</th>
+<th>علت</th>
+<th>تشخیص</th>
+<th></th></tr></thead><tbody>{% for r in data.hospitalizations %}<tr>
+<td>{{r["admission_date"] or "—"}}</td>
+<td>{{r["discharge_date"] or "—"}}</td>
+<td>{{r["hospital"] or "—"}}</td>
+<td>{{r["reason"] or "—"}}</td>
+<td>{{r["diagnosis"] or "—"}}</td>
+<td><form method="post" action="{{url_for('delete_record',member_id=member.id,table='hospitalizations',record_id=r.id)}}" onsubmit="return confirm('حذف شود؟')"><button class="icon danger">×</button></form></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty small">موردی ثبت نشده است.</div>{% endif %}</section>
+<section class="panel"><h2>سابقه خانوادگی</h2>{% if data.family_history %}<div class="table-wrap"><table><thead><tr>
+<th>نسبت</th>
+<th>بیماری</th>
+<th>سن تشخیص</th>
+<th>وضعیت</th>
+<th></th></tr></thead><tbody>{% for r in data.family_history %}<tr>
+<td>{{r["relative"] or "—"}}</td>
+<td>{{r["condition"] or "—"}}</td>
+<td>{{r["age_at_diagnosis"] or "—"}}</td>
+<td>{{r["status"] or "—"}}</td>
+<td><form method="post" action="{{url_for('delete_record',member_id=member.id,table='family_history',record_id=r.id)}}" onsubmit="return confirm('حذف شود؟')"><button class="icon danger">×</button></form></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty small">موردی ثبت نشده است.</div>{% endif %}</section>
+<section class="panel"><h2>واکسیناسیون</h2>{% if data.vaccinations %}<div class="table-wrap"><table><thead><tr>
+<th>واکسن</th>
+<th>تاریخ</th>
+<th>دوز</th>
+<th>مرکز/پزشک</th>
+<th></th></tr></thead><tbody>{% for r in data.vaccinations %}<tr>
+<td>{{r["vaccine"] or "—"}}</td>
+<td>{{r["date"] or "—"}}</td>
+<td>{{r["dose"] or "—"}}</td>
+<td>{{r["provider"] or "—"}}</td>
+<td><form method="post" action="{{url_for('delete_record',member_id=member.id,table='vaccinations',record_id=r.id)}}" onsubmit="return confirm('حذف شود؟')"><button class="icon danger">×</button></form></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty small">موردی ثبت نشده است.</div>{% endif %}</section>
+<section class="panel"><h2>پزشکان</h2>{% if data.doctors %}<div class="table-wrap"><table><thead><tr>
+<th>تخصص</th>
+<th>پزشک</th>
+<th>مرکز</th>
+<th>آخرین مراجعه</th>
+<th></th></tr></thead><tbody>{% for r in data.doctors %}<tr>
+<td>{{r["specialty"] or "—"}}</td>
+<td>{{r["name"] or "—"}}</td>
+<td>{{r["clinic"] or "—"}}</td>
+<td>{{r["last_visit"] or "—"}}</td>
+<td><form method="post" action="{{url_for('delete_record',member_id=member.id,table='doctors',record_id=r.id)}}" onsubmit="return confirm('حذف شود؟')"><button class="icon danger">×</button></form></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty small">موردی ثبت نشده است.</div>{% endif %}</section>
+</section>
+<section id="meds" class="grid two">
+<section class="panel"><h2>حساسیت‌ها</h2>{% if data.allergies %}<div class="table-wrap"><table><thead><tr>
+<th>ماده</th>
+<th>واکنش</th>
+<th>شدت</th>
+<th></th></tr></thead><tbody>{% for r in data.allergies %}<tr>
+<td>{{r["allergen"] or "—"}}</td>
+<td>{{r["reaction"] or "—"}}</td>
+<td>{{r["severity"] or "—"}}</td>
+<td><form method="post" action="{{url_for('delete_record',member_id=member.id,table='allergies',record_id=r.id)}}" onsubmit="return confirm('حذف شود؟')"><button class="icon danger">×</button></form></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty small">موردی ثبت نشده است.</div>{% endif %}</section>
+<section class="panel"><h2>داروهای جاری/قبلی</h2>{% if data.medications %}<div class="table-wrap"><table><thead><tr>
+<th>دارو</th>
+<th>دوز</th>
+<th>دفعات</th>
+<th>روش مصرف</th>
+<th>علت</th>
+<th></th></tr></thead><tbody>{% for r in data.medications %}<tr>
+<td>{{r["name"] or "—"}}</td>
+<td>{{r["dose"] or "—"}}</td>
+<td>{{r["frequency"] or "—"}}</td>
+<td>{{r["route"] or "—"}}</td>
+<td>{{r["reason"] or "—"}}</td>
+<td><form method="post" action="{{url_for('delete_record',member_id=member.id,table='medications',record_id=r.id)}}" onsubmit="return confirm('حذف شود؟')"><button class="icon danger">×</button></form></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty small">موردی ثبت نشده است.</div>{% endif %}</section>
+<section class="panel"><h2>عادت‌ها و سبک زندگی</h2>{% if data.habits %}<div class="table-wrap"><table><thead><tr>
+<th>دسته</th>
+<th>مقدار/وضعیت</th>
+<th>کمیت</th>
+<th>دفعات</th>
+<th>از تاریخ</th>
+<th></th></tr></thead><tbody>{% for r in data.habits %}<tr>
+<td>{{r["category"] or "—"}}</td>
+<td>{{r["value"] or "—"}}</td>
+<td>{{r["quantity"] or "—"}}</td>
+<td>{{r["frequency"] or "—"}}</td>
+<td>{{r["since_date"] or "—"}}</td>
+<td><form method="post" action="{{url_for('delete_record',member_id=member.id,table='habits',record_id=r.id)}}" onsubmit="return confirm('حذف شود؟')"><button class="icon danger">×</button></form></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty small">موردی ثبت نشده است.</div>{% endif %}</section>
+</section>
+<section class="panel"><h2>افزودن سابقه پزشکی</h2><div class="grid two">
+<form class="mini-form" method="post" action="{{url_for('add_record',member_id=member.id,kind='condition')}}"><h3>بیماری</h3><input name="name" placeholder="نام بیماری *" required><input name="status" placeholder="وضعیت"><input type="date" name="diagnosis_date"><input name="severity" placeholder="شدت"><textarea name="details" placeholder="جزئیات"></textarea><input name="medications" placeholder="داروهای مرتبط"><button class="btn">افزودن</button></form>
+<form class="mini-form" method="post" action="{{url_for('add_record',member_id=member.id,kind='surgery')}}"><h3>جراحی</h3><input name="title" placeholder="عنوان عمل *" required><input type="date" name="date"><input name="hospital" placeholder="بیمارستان"><input name="surgeon" placeholder="جراح"><textarea name="indication" placeholder="علت/اندیکاسیون"></textarea><textarea name="outcome" placeholder="نتیجه"></textarea><button class="btn">افزودن</button></form>
+<form class="mini-form" method="post" action="{{url_for('add_record',member_id=member.id,kind='allergy')}}"><h3>حساسیت</h3><input name="allergen" placeholder="ماده *" required><input name="reaction" placeholder="واکنش"><input name="severity" placeholder="شدت"><button class="btn">افزودن</button></form>
+<form class="mini-form" method="post" action="{{url_for('add_record',member_id=member.id,kind='medication')}}"><h3>دارو</h3><input name="name" placeholder="نام دارو *" required><input name="dose" placeholder="دوز"><input name="frequency" placeholder="دفعات"><input name="route" placeholder="روش مصرف"><input name="reason" placeholder="علت"><input name="prescriber" placeholder="پزشک"><button class="btn">افزودن</button></form>
+<form class="mini-form" method="post" action="{{url_for('add_record',member_id=member.id,kind='family_history')}}"><h3>سابقه خانوادگی</h3><input name="relative" placeholder="نسبت *" required><input name="condition" placeholder="بیماری *" required><input name="age_at_diagnosis" placeholder="سن تشخیص"><input name="status" placeholder="وضعیت"><textarea name="notes" placeholder="توضیحات"></textarea><button class="btn">افزودن</button></form>
+<form class="mini-form" method="post" action="{{url_for('add_record',member_id=member.id,kind='habit')}}"><h3>عادت/سبک زندگی</h3><input name="category" placeholder="دسته * (ورزش، خواب، دخانیات...)" required><input name="value" placeholder="وضعیت"><input name="quantity" placeholder="مقدار"><input name="frequency" placeholder="تکرار"><input type="date" name="since_date"><textarea name="notes" placeholder="یادداشت"></textarea><button class="btn">افزودن</button></form>
+</div></section>
+<section id="documents" class="panel"><div class="section-head"><div><h2>آزمایش‌ها، تصویربرداری، پاتولوژی و مدارک</h2><p>فایل را با تاریخ سند ثبت کنید؛ تصاویر برای تحلیل AI ارسال می‌شوند.</p></div></div><form method="post" enctype="multipart/form-data" action="{{url_for('upload',member_id=member.id)}}" class="upload"><input type="file" name="file" required accept=".png,.jpg,.jpeg,.webp,.gif,.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx"><input type="date" name="document_date"><select name="category"><option>آزمایش خون</option><option>تصویربرداری</option><option>پاتولوژی/نمونه‌برداری</option><option>نسخه/گزارش پزشک</option><option>سایر</option></select><input name="description" placeholder="توضیح کوتاه"><button class="btn primary">ثبت سند</button></form><div class="table-wrap"><table><thead><tr><th>سند</th><th>دسته</th><th>تاریخ سند</th><th>ثبت</th><th>عملیات</th></tr></thead><tbody>{% for d in data.documents %}<tr><td><a href="{{url_for('uploaded',name=d.stored_name)}}" target="_blank">{{d.original_name}}</a></td><td>{{d.category}}</td><td>{{d.document_date or '—'}}</td><td>{{d.uploaded_at}}</td><td><form method="post" action="{{url_for('analyze_document',member_id=member.id,document_id=d.id)}}" style="display:inline"><button class="btn ai">تحلیل AI</button></form> <form method="post" action="{{url_for('delete_record',member_id=member.id,table='documents',record_id=d.id)}}" style="display:inline"><button class="icon danger">×</button></form></td></tr>{% endfor %}</tbody></table></div></section>
+<section id="timeline" class="panel"><h2>Timeline اقدامات</h2><div class="timeline">{% for a in data.action_items %}<div class="timeline-item {{a.priority or ''}}"><div class="dot"></div><div><b>{{a.due_date or 'بدون تاریخ'}} {{a.due_time or ''}}</b> · {{a.priority or '—'}}<h3>{{a.action}}</h3><p>{{a.reason}}</p><form method="post" action="{{url_for('toggle_action',action_id=a.id)}}"><button class="btn small">{{'بازگرداندن' if a.status=='done' else 'انجام شد'}}</button></form></div></div>{% else %}<div class="empty">هنوز Timeline تولید نشده؛ ابتدا پرونده را با AI تحلیل کنید.</div>{% endfor %}</div></section>
+<section id="ai" class="panel"><h2>آخرین تحلیل‌های AI</h2>{% for a in data.analyses %}<details class="analysis" {% if loop.first %}open{% endif %}><summary>{{a.created_at}} · {{a.model}}</summary><pre>{{a.response_json}}</pre></details>{% else %}<div class="empty">تحلیلی ثبت نشده است.</div>{% endfor %}</section>
+{% endblock %}
