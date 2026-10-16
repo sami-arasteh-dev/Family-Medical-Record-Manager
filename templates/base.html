@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}پرونده پزشکی خانواده{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <a class="brand" href="{{ url_for('index') }}">پرونده پزشکی خانواده</a>
+    <span class="muted">Local • SQLite • AI-assisted</span>
+  </div>
+  <nav>
+    <a href="{{ url_for('index') }}">اعضای خانواده</a>
+    <a href="{{ url_for('new_member') }}">+ عضو جدید</a>
+    <a href="{{ url_for('settings') }}">تنظیمات AI</a>
+  </nav>
+</header>
+<main class="container">
+{% with messages=get_flashed_messages(with_categories=true) %}
+  {% for category,msg in messages %}<div class="alert {{ category }}">{{ msg }}</div>{% endfor %}
+{% endwith %}
+{% block content %}{% endblock %}
+</main>
+<footer>این سامانه جایگزین پزشک، تشخیص یا تجویز پزشکی نیست.</footer>
+</body>
+</html>
