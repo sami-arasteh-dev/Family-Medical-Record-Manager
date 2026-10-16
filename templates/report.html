@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="fa" dir="rtl"><head><meta charset="utf-8"><title>گزارش پزشکی - {{member.first_name}} {{member.last_name}}</title><link rel="stylesheet" href="{{url_for('static',filename='style.css')}}"></head>
+<body class="report">
+<div class="report-actions"><button onclick="window.print()" class="btn primary">چاپ / ذخیره PDF</button><a class="btn" href="{{url_for('member',member_id=member.id)}}">بازگشت</a></div>
+<header><h1>خلاصه پرونده پزشکی</h1><h2>{{member.first_name}} {{member.last_name}}</h2><p>تاریخ تهیه گزارش: {{data.member.updated_at}}</p></header>
+<section class="panel"><h2>مشخصات</h2><div class="info-grid">{% for label,key in [('تولد','birth_date'),('جنسیت','gender'),('گروه خون','blood_type'),('تلفن','phone'),('تماس اضطراری','emergency_phone')] %}<div><span>{{label}}</span><b>{{member[key] or '—'}}</b></div>{% endfor %}</div></section>
+{% for title,key,fields in [
+('بیماری‌ها','conditions',['name','status','diagnosis_date','severity','details']),
+('جراحی‌ها','surgeries',['title','date','hospital','surgeon','outcome']),
+('حساسیت‌ها','allergies',['allergen','reaction','severity']),
+('داروها','medications',['name','dose','frequency','route','reason']),
+('سابقه خانوادگی','family_history',['relative','condition','age_at_diagnosis','status']),
+('واکسیناسیون','vaccinations',['vaccine','date','dose','provider']),
+('پزشکان','doctors',['specialty','name','clinic','last_visit'])
+] %}
+<section class="panel"><h2>{{title}}</h2>{% if data[key] %}<table><thead><tr>{% for f in fields %}<th>{{f}}</th>{% endfor %}</tr></thead><tbody>{% for r in data[key] %}<tr>{% for f in fields %}<td>{{r[f] or '—'}}</td>{% endfor %}</tr>{% endfor %}</tbody></table>{% else %}<p>ثبت نشده</p>{% endif %}</section>
+{% endfor %}
+<section class="panel"><h2>Timeline اقدامات</h2>{% for a in data.action_items %}<div class="report-action"><b>{{a.due_date or 'بدون تاریخ'}} {{a.due_time or ''}}</b> — {{a.action}}<br><span>{{a.reason}}</span></div>{% else %}<p>موردی ثبت نشده.</p>{% endfor %}</section>
+<section class="panel"><h2>آخرین خلاصه AI</h2>{% if data.analyses %}<pre>{{data.analyses[0].response_json}}</pre>{% else %}<p>تحلیلی موجود نیست.</p>{% endif %}</section>
+<p class="disclaimer">این گزارش برای سازمان‌دهی اطلاعات و کمک به گفتگو با پزشک تهیه شده و جایگزین تشخیص، تفسیر تخصصی آزمایش یا تجویز پزشکی نیست.</p>
+</body></html>
