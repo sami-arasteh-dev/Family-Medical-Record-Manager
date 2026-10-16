@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% block title %}تنظیمات AI{% endblock %}
+{% block content %}
+<div class="section-head"><div><h1>تنظیمات اتصال AI</h1><p>این اطلاعات فقط در SQLite همین سیستم ذخیره می‌شود.</p></div></div>
+<form method="post" class="panel form-grid">
+<label>Base URL<input name="base_url" value="{{settings.base_url}}" required></label>
+<label>API Key<input type="password" name="api_key" value="{{settings.api_key}}" autocomplete="off" required></label>
+<label>Model<input name="model" value="{{settings.model or 'gpt-4o'}}" required></label>
+<label class="full">دستور تکمیلی سیستم<textarea name="system_prompt" rows="5" placeholder="اختیاری">{{settings.system_prompt}}</textarea></label>
+<div class="full note"><b>پیشنهاد:</b> Base URL پیش‌فرض `https://api.gapgpt.app/v1` و مدل `gpt-4o` است. کلید را در اختیار دیگران قرار ندهید.</div>
+<button class="btn primary">ذخیره تنظیمات</button>
+</form>
+<div class="warning"><b>نکته امنیتی:</b> این نسخه برای استفاده محلی طراحی شده و API Key به‌صورت رمزنگاری‌شده ذخیره نمی‌شود. برای نسخه شبکه‌ای باید احراز هویت و رمزنگاری اضافه شود.</div>
+{% endblock %}
